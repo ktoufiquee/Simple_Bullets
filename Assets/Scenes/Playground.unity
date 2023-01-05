@@ -635,7 +635,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -407, y: -207}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1879434344
 MonoBehaviour:
@@ -718,7 +718,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefabs:
   - {fileID: 8434827445741836501, guid: 7727ff841cb2e7f45adbc88669cd8631, type: 3}
-  enemyCount: 5
+  enemyCount: 10
 --- !u!4 &2114302203
 Transform:
   m_ObjectHideFlags: 0
