@@ -387,7 +387,7 @@ GameObject:
   - component: {fileID: 333846544}
   - component: {fileID: 333846545}
   m_Layer: 5
-  m_Name: mainmenu
+  m_Name: MainMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -574,7 +574,7 @@ GameObject:
   - component: {fileID: 936822804}
   - component: {fileID: 936822803}
   m_Layer: 5
-  m_Name: gameName
+  m_Name: GameTitle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -946,7 +946,7 @@ GameObject:
   - component: {fileID: 1474833895}
   - component: {fileID: 1474833894}
   m_Layer: 5
-  m_Name: background_image
+  m_Name: BGImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

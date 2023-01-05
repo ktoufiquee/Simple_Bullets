@@ -251,14 +251,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e3fb14d28f52ca41a7ea5212a7ca718, type: 3}
+  m_Script: {fileID: 11500000, guid: 2197cb269d7708e4bbbbb8c6e19f36d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraOffset: {x: 0, y: 0, z: -10}
-  playerToCursorOffset: 1
-  playerTransform: {fileID: 1599734814}
-  cursorTransform: {fileID: 1879434343}
-  cutoffDistance: 3
+  target: {fileID: 1599734814}
+  smoothTime: 0.3
+  mouseSensitivity: 0.01
+  offset: {x: 0, y: 0, z: -10}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -483,6 +482,7 @@ GameObject:
   - component: {fileID: 1599734813}
   - component: {fileID: 1599734812}
   - component: {fileID: 1599734811}
+  - component: {fileID: 1599734815}
   m_Layer: 0
   m_Name: Square
   m_TagString: Untagged
@@ -505,11 +505,10 @@ MonoBehaviour:
   bulletPrefab: {fileID: 4390045372091057036, guid: 604f7643fa596fd4daba674f64d6ac4a, type: 3}
   movementSpeed: 10
   maxPlayerSpeed: 40
-  dashSpeed: 50
-  dashDuration: 0.1
-  dashCooldown: 3
+  dashForce: 10
   bulletSpeed: 75
-  bulletCooldown: 0.1
+  maxDashDistance: 5
+  isDashing: 0
 --- !u!50 &1599734812
 Rigidbody2D:
   serializedVersion: 4
@@ -518,14 +517,14 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1599734810}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
@@ -598,6 +597,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1599734815
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1599734810}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 2ac74435ae0a93a448a85d14e9197ce7, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
 --- !u!1 &1879434342
 GameObject:
   m_ObjectHideFlags: 0
@@ -635,7 +654,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -407, y: -207}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1879434344
 MonoBehaviour:

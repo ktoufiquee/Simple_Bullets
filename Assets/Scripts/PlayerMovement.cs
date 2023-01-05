@@ -8,18 +8,16 @@ public class PlayerMovement : MonoBehaviour
     public GameObject bulletPrefab;
     public float movementSpeed = 10f;
     public float maxPlayerSpeed = 20f;
-    public float dashSpeed = 50f;
-    public float dashDuration = 0.1f;
-    public float dashCooldown = 0.5f;
+    public float dashForce = 10f;
     public float bulletSpeed = 75f;
-    public float bulletCooldown = 0.1f;
-
+    public float maxDashDistance = 5f;
+    
+    
     private Rigidbody2D _playerBody;
-    private float _dashLength = 0f;
-    private float _dashTimer = 0f;
-    private float _bulletTimer = 0f;
     private Camera _gameCamera;
 
+    public bool isDashing = false;
+    
     private void Start()
     {
         _playerBody = GetComponent<Rigidbody2D>();
@@ -28,36 +26,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && !isDashing)
         {
-            if (_dashLength <= 0f && _dashTimer <= 0f)
-            {
-                _dashLength = dashDuration;
-                _dashTimer = dashCooldown;
-            }
-        }
-
-        if (Input.GetButtonDown("Fire1"))
-        {
-            if (_bulletTimer <= 0f)
-            {
-                _bulletTimer = bulletCooldown;
-                Fire();
-            }
-        }
-
-        if (_dashLength > 0f)
-        {
-            _dashLength -= Time.deltaTime;
-        }
-        if (_dashTimer > 0f)
-        {
-            _dashTimer -= Time.deltaTime;
-        }
-        if (_bulletTimer > 0f)
-        {
-            _bulletTimer -= Time.deltaTime;
+            Dash();
         }
     }
 
@@ -65,22 +36,14 @@ public class PlayerMovement : MonoBehaviour
     {
         var horizontalInput = Input.GetAxis("Horizontal");
         var verticalInput = Input.GetAxis("Vertical");
-
+        
         var normalizedInput = new Vector2(horizontalInput, verticalInput).normalized;
-
-        if (_dashLength > 0f)
+        
+        _playerBody.velocity = normalizedInput * movementSpeed;
+        if (_playerBody.velocity.magnitude > maxPlayerSpeed & !isDashing)
         {
-            _playerBody.velocity = normalizedInput * dashSpeed;
+            _playerBody.velocity = _playerBody.velocity.normalized * maxPlayerSpeed;
         }
-        else
-        {
-            _playerBody.velocity = normalizedInput * movementSpeed;
-        }
-
-        // if (_playerBody.velocity.magnitude > maxPlayerSpeed)
-        // {
-        //     _playerBody.velocity = _playerBody.velocity.normalized * maxPlayerSpeed;
-        // }
     }
 
     private void Fire()
@@ -91,5 +54,25 @@ public class PlayerMovement : MonoBehaviour
         var direction = (mousePos - _playerBody.position).normalized;
         bulletBody.velocity = direction * bulletSpeed;
         Destroy(bullet, 3f);
+    }
+
+    private void Dash()
+    {
+        
+        var cursorPos = _gameCamera.ScreenToWorldPoint(Input.mousePosition);
+
+        Vector2 dashDirection = cursorPos - transform.position;
+        var dashDistance = Vector2.Distance(cursorPos, transform.position);
+
+        dashDistance = Mathf.Min(dashDistance, maxDashDistance);
+        dashDirection = dashDirection.normalized * dashDistance;
+        
+        _playerBody.AddForce(dashDirection * dashForce);
+        
+        Debug.Log(dashDirection * dashForce);
+        
+        // anim.SetTrigger("Dash");
+        isDashing = true;
+
     }
 }
