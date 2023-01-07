@@ -5,74 +5,123 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public GameObject bulletPrefab;
-    public float movementSpeed = 10f;
-    public float maxPlayerSpeed = 20f;
-    public float dashForce = 10f;
-    public float bulletSpeed = 75f;
-    public float maxDashDistance = 5f;
+    public bool isDashing;
     
-    
-    private Rigidbody2D _playerBody;
-    private Camera _gameCamera;
+    [SerializeField] private float movementSpeed;
+    [SerializeField] private float dashSpeed;
+    [SerializeField] private float dashDuration;
+    [SerializeField] private float dashCooldown;
+    [SerializeField] private int dashCount;
+    [SerializeField] private GameObject playerGun;
+    [SerializeField] private GameObject gunPrefab;
 
-    public bool isDashing = false;
+    private float _dashDurationTimer;
+    private float _dashCooldownTimer;
+
+    private Rigidbody2D _playerBody;
+    private Animator _playerAnim;
+    private Camera _gameCamera;
     
     private void Start()
     {
         _playerBody = GetComponent<Rigidbody2D>();
+        _playerAnim = GetComponent<Animator>();
         _gameCamera = Camera.main;
     }
 
     private void Update()
     {
-        if (Input.GetButtonDown("Jump") && !isDashing)
+        if (Input.GetButtonDown("Jump"))
         {
-            Dash();
+            if (_dashDurationTimer <= 0 && _dashCooldownTimer <= 0 && dashCount > 0)
+            {
+                _dashDurationTimer = dashDuration;
+                _dashCooldownTimer = dashCooldown;
+                --dashCount;
+                // if (dashCount == 0)
+                // {
+                //     playerGun.SetActive(false);
+                // }
+                StartCoroutine(SpawnGun(transform.position));
+            }
+        }
+        
+        if (_dashDurationTimer > 0)
+        {
+            _dashDurationTimer -= Time.deltaTime;
+        }
+        if (_dashCooldownTimer > 0)
+        {
+            _dashCooldownTimer -= Time.deltaTime;
         }
     }
 
     private void FixedUpdate()
     {
-        var horizontalInput = Input.GetAxis("Horizontal");
-        var verticalInput = Input.GetAxis("Vertical");
-        
-        var normalizedInput = new Vector2(horizontalInput, verticalInput).normalized;
-        
-        _playerBody.velocity = normalizedInput * movementSpeed;
-        if (_playerBody.velocity.magnitude > maxPlayerSpeed & !isDashing)
+        var mousePos = (Vector2)_gameCamera.ScreenToWorldPoint(Input.mousePosition);
+        var mouseDirection = (mousePos - _playerBody.position).normalized;
+        var inputPos = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")).normalized;
+
+        if (_dashDurationTimer > 0)
         {
-            _playerBody.velocity = _playerBody.velocity.normalized * maxPlayerSpeed;
+            _playerBody.MovePosition(_playerBody.position + mouseDirection * (dashSpeed * Time.fixedDeltaTime));
+        }
+        else
+        {
+            _playerBody.MovePosition(_playerBody.position + inputPos * (movementSpeed * Time.fixedDeltaTime));
+        }
+
+        transform.localScale = mousePos.x < transform.position.x ? new Vector3(-1, 1, 1) : new Vector3(1, 1, 1);
+        isDashing = _dashDurationTimer > 0;
+        _playerAnim.SetFloat("Speed", inputPos.magnitude);
+        _playerAnim.SetBool("isDashing", isDashing);
+
+        if (!isDashing && dashCount > 0)
+        {
+            playerGun.SetActive(true);
+        }
+        else
+        {
+            playerGun.SetActive(false);
         }
     }
 
-    private void Fire()
+    // private void OnCollisionEnter2D(Collision2D col)
+    // {
+    //     
+    //     if (col.gameObject.CompareTag("Gun"))
+    //     {
+    //         if (dashCount == 0)
+    //         {
+    //             playerGun.SetActive(true);
+    //         }
+    //         dashCount++;
+    //         Destroy(col.gameObject);
+    //     }
+    // }
+
+    private void OnTriggerEnter2D(Collider2D col)
     {
-        var bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-        var bulletBody = bullet.GetComponent<Rigidbody2D>();
-        var mousePos = (Vector2) _gameCamera.ScreenToWorldPoint(Input.mousePosition);
-        var direction = (mousePos - _playerBody.position).normalized;
-        bulletBody.velocity = direction * bulletSpeed;
-        Destroy(bullet, 3f);
+        Debug.Log("Triggered in Player");
+        if (col.CompareTag("Gun"))
+        {
+            // if (dashCount == 0)
+            // {
+            //     playerGun.SetActive(true);
+            // }
+            dashCount++;
+            Destroy(col.gameObject);
+        }
     }
 
-    private void Dash()
+    // public void ToggleGun()
+    // {
+    //     playerGun.SetActive(!playerGun.activeSelf);
+    // }
+
+    private IEnumerator SpawnGun(Vector3 pos)
     {
-        
-        var cursorPos = _gameCamera.ScreenToWorldPoint(Input.mousePosition);
-
-        Vector2 dashDirection = cursorPos - transform.position;
-        var dashDistance = Vector2.Distance(cursorPos, transform.position);
-
-        dashDistance = Mathf.Min(dashDistance, maxDashDistance);
-        dashDirection = dashDirection.normalized * dashDistance;
-        
-        _playerBody.AddForce(dashDirection * dashForce);
-        
-        Debug.Log(dashDirection * dashForce);
-        
-        // anim.SetTrigger("Dash");
-        isDashing = true;
-
+        yield return new WaitForSeconds(dashDuration / 5);
+        Instantiate(gunPrefab, pos, Quaternion.identity);
     }
 }

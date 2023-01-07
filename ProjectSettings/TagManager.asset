@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Gun
   layers:
   - Default
   - TransparentFX
@@ -38,6 +39,15 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Trail Layer
+    uniqueID: 2747521307
+    locked: 0
+  - name: Player
+    uniqueID: 781297031
+    locked: 0
+  - name: Gun
+    uniqueID: 1227475425
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

@@ -1,35 +1,42 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyMovements : MonoBehaviour
 {
-    public Rigidbody2D target; 
-    public Rigidbody2D enemy;
-    public float enemySpeed = 1.5f;
-    public float directionOffset = 45f;
-    void Start()
+     
+    public float movementSpeed = 1.5f;
+
+    private Transform _enemyTransform;
+    private Transform _playerTransform;
+    private PlayerMovement _playerController;
+    
+    private void Start()
     {
-        enemy.rotation = 0f;
+        _enemyTransform = GetComponent<Transform>();
+        _playerController = GameObject.FindWithTag("Player").GetComponent<PlayerMovement>();
+        _playerTransform = GameObject.FindWithTag("Player").GetComponent<Transform>();
     }
 
-    void Update()
+    private void Update()
     {
-        Vector2 moveDirection = target.position - enemy.position;
-        moveDirection.Normalize();
+        var enemyPos = _enemyTransform.position;
+        var playerPos = _playerTransform.position;
 
-        enemy.rotation = Mathf.Atan2(moveDirection.y, moveDirection.x) * (Mathf.Rad2Deg + directionOffset);
-        enemy.MovePosition(enemy.position + moveDirection * enemySpeed * Time.deltaTime);
-
+        transform.localScale = playerPos.x < enemyPos.x ? new Vector3(-1, -1, 1) : new Vector3(-1, 1, 1);
+        
+        var moveDirection = (playerPos - enemyPos).normalized;
+        var angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * (Mathf.Rad2Deg);
+        _enemyTransform.rotation = Quaternion.Euler(0, 0, angle);
+        _enemyTransform.position = Vector2.MoveTowards(enemyPos, playerPos, movementSpeed * Time.deltaTime);
     }
 
-    void FixedUpdate()
+    private void OnCollisionEnter2D(Collision2D other)
     {
-
-    }
-
-    void OnCollisionEnter2D()
-    {
-        Destroy(gameObject);
+        if (other.gameObject.CompareTag("Player") && _playerController.isDashing)
+        {
+            Destroy(gameObject);
+        }
     }
 }
