@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private GameObject gunPrefab;
 
     private Vector2 _mousePos;
+    private Vector2 _shootPos;
     public float stopTimer = 0f;
     
     private float _dashDurationTimer;
@@ -44,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
                 _dashCooldownTimer = dashCooldown;
                 --dashCount;
                 _mousePos = (Vector2)_gameCamera.ScreenToWorldPoint(Input.mousePosition);
+                _shootPos = _playerBody.position;
                 StartCoroutine(SpawnGun(transform.position));
             }
         }
@@ -61,11 +63,16 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         
-        var mouseDirection = (_mousePos - _playerBody.position).normalized;
+        var mouseDirection = (_mousePos - _shootPos).normalized;
         var inputPos = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")).normalized;
-
+        
         if (_dashDurationTimer > 0)
         {
+            if (mouseDirection.magnitude < 7f)
+            {
+                mouseDirection *= 5;
+                mouseDirection = mouseDirection.normalized;
+            }
             _playerBody.MovePosition(_playerBody.position + mouseDirection * (dashSpeed * Time.fixedDeltaTime));
         }
         else
