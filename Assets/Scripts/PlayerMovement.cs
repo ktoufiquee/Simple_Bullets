@@ -7,20 +7,25 @@ public class PlayerMovement : MonoBehaviour
 {
     public bool isDashing;
     
-    [SerializeField] private float movementSpeed;
+    public float movementSpeed;
     [SerializeField] private float dashSpeed;
-    [SerializeField] private float dashDuration;
+    public float dashDuration;
     [SerializeField] private float dashCooldown;
     [SerializeField] private int dashCount;
     [SerializeField] private GameObject playerGun;
     [SerializeField] private GameObject gunPrefab;
 
+    private Vector2 _mousePos;
+    public float stopTimer = 0f;
+    
     private float _dashDurationTimer;
     private float _dashCooldownTimer;
 
     private Rigidbody2D _playerBody;
     private Animator _playerAnim;
     private Camera _gameCamera;
+
+    public int playerHealth = 100;
     
     private void Start()
     {
@@ -31,17 +36,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") || Input.GetButtonDown("Fire1"))
         {
             if (_dashDurationTimer <= 0 && _dashCooldownTimer <= 0 && dashCount > 0)
             {
                 _dashDurationTimer = dashDuration;
                 _dashCooldownTimer = dashCooldown;
                 --dashCount;
-                // if (dashCount == 0)
-                // {
-                //     playerGun.SetActive(false);
-                // }
+                _mousePos = (Vector2)_gameCamera.ScreenToWorldPoint(Input.mousePosition);
                 StartCoroutine(SpawnGun(transform.position));
             }
         }
@@ -58,8 +60,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        var mousePos = (Vector2)_gameCamera.ScreenToWorldPoint(Input.mousePosition);
-        var mouseDirection = (mousePos - _playerBody.position).normalized;
+        
+        var mouseDirection = (_mousePos - _playerBody.position).normalized;
         var inputPos = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")).normalized;
 
         if (_dashDurationTimer > 0)
@@ -70,8 +72,8 @@ public class PlayerMovement : MonoBehaviour
         {
             _playerBody.MovePosition(_playerBody.position + inputPos * (movementSpeed * Time.fixedDeltaTime));
         }
-
-        transform.localScale = mousePos.x < transform.position.x ? new Vector3(-1, 1, 1) : new Vector3(1, 1, 1);
+        var latestMousePos = (Vector2)_gameCamera.ScreenToWorldPoint(Input.mousePosition);
+        transform.localScale = latestMousePos.x < transform.position.x ? new Vector3(-1, 1, 1) : new Vector3(1, 1, 1);
         isDashing = _dashDurationTimer > 0;
         _playerAnim.SetFloat("Speed", inputPos.magnitude);
         _playerAnim.SetBool("isDashing", isDashing);
@@ -86,23 +88,22 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // private void OnCollisionEnter2D(Collision2D col)
-    // {
-    //     
-    //     if (col.gameObject.CompareTag("Gun"))
-    //     {
-    //         if (dashCount == 0)
-    //         {
-    //             playerGun.SetActive(true);
-    //         }
-    //         dashCount++;
-    //         Destroy(col.gameObject);
-    //     }
-    // }
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        
+        if (col.gameObject.CompareTag("Gun"))
+        {
+            if (dashCount == 0)
+            {
+                playerGun.SetActive(true);
+            }
+            dashCount++;
+            Destroy(col.gameObject);
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D col)
     {
-        Debug.Log("Triggered in Player");
         if (col.CompareTag("Gun"))
         {
             // if (dashCount == 0)
